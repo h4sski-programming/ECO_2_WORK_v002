@@ -2,34 +2,33 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 
-import views
-import auth
-
 app = Flask(__name__)
 db = SQLAlchemy()
 DB_NAME = 'database.db'
 
 
-def initiate_db():
+def initiate_app():
     app.config['SECRET_KEY'] = 'h4sski'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
-    app.run(debug=True)
-    db.init_app(app)
 
 
 def create_db(app_create):
-    print('create')
+    app.run(debug=True)
+    db.init_app(app)
     if not path.exists(f'/{DB_NAME}'):
-        print('created')
-        db.create_all(app_create)
+        db.metadata.create_all(app_create)
 
 
 def main():
-    initiate_db()
-
-    app.register_blueprint(views, url_prefix='/')
+    initiate_app()
+    from views import views
+    from auth import auth
     app.register_blueprint(auth, url_prefix='/')
 
+    app.register_blueprint(views, url_prefix='/')
+
+
+    from models import User, Activity
     create_db(app)
 
 
