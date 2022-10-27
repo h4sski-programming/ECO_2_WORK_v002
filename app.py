@@ -21,12 +21,11 @@ def create_db(app_create):
 
 def main():
     initiate_app()
+
     from views import views
     from auth import auth
-    app.register_blueprint(auth, url_prefix='/')
-
     app.register_blueprint(views, url_prefix='/')
-
+    app.register_blueprint(auth, url_prefix='/')
 
     from models import User, Activity
     create_db(app)
