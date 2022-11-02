@@ -2,21 +2,20 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 
-from app import db
-from models import User as user_table
-
-# from models import User, Activity
+# from app import db, session
+from models import db, session
+from models import User
 
 auth = Blueprint('auth', __name__)
 
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        user = user_table.query.filter_by(email=email).first()
+        user = session.query(User).filter_by(email=email).first()
+        # user = User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
                 flash(f'Logged, welcome {user.first_name}!', category='success')
@@ -33,28 +32,35 @@ def login():
 def sign_up():
     if request.method == 'POST':
         email = request.form.get('email')
-        first_name = request.form.get('firstName')
-        last_name = request.form.get('lastName')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
 
-        user = user_table.query.filter_by(email=email).first()
+        # user = user_table.query.filter_by(email=email).first()
+        user = session.query(User).filter_by(email=email).first()
+        if user:
+            pass
+        else:
+            print('\t======\tuser table not exist.')
 
         if user:
             flash('User already exist.', category='error')
         elif len(email) < 4:
-            flash('Email must be greater than 3 charaters.', category='error')
+            flash('Email must be greater than 3 characters.', category='error')
         elif len(first_name) < 2:
-            flash('First name must be greater than 1 charaters.', category='error')
+            flash('First name must be greater than 1 characters.', category='error')
         elif len(last_name) < 2:
-            flash('Last name must be greater than 1 charaters.', category='error')
+            flash('Last name must be greater than 1 characters.', category='error')
         elif len(password1) < 7:
-            flash('Password must be greater than 7 charaters.', category='error')
+            flash('Password must be greater than 7 characters.', category='error')
         elif password1 != password2:
-            flash('Passowrds must match.', category='error')
+            flash('Passwords must match.', category='error')
         else:
-            new_user = user_table(email=email, first_name=first_name, last_name=last_name,
-                                   password=generate_password_hash(password1, method='sha256'))
+            # new_user = user_table(email=email, first_name=first_name, last_name=last_name,
+            #                       password=generate_password_hash(password1, method='sha256'))
+            new_user = session.query(User).join(email=email, first_name=first_name, last_name=last_name,
+                                                      password=generate_password_hash(password1, method='sha256'))
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)

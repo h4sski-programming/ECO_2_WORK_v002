@@ -1,10 +1,18 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, declarative_base
 from os import path
 
+import models
+from models import db, DB_NAME
+
 app = Flask(__name__)
-db = SQLAlchemy()
-DB_NAME = 'database.db'
+# db = SQLAlchemy()
+# # db = declarative_base()
+# DB_NAME = 'database.db'
+# engine = create_engine(f'sqlite:///{DB_NAME}', echo=True, future=True)
+# session = Session(engine)
 
 
 def initiate_app():
@@ -15,8 +23,8 @@ def initiate_app():
 def create_db(app_create):
     app.run(debug=True)
     db.init_app(app)
-    if not path.exists(f'/{DB_NAME}'):
-        db.metadata.create_all(app_create)
+    models.create_db()
+    print('DB created.')
 
 
 def main():
@@ -27,7 +35,6 @@ def main():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
-    from models import User, Activity
     create_db(app)
 
 
