@@ -5,14 +5,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session
 from sqlalchemy import Column, Integer, String, \
     ForeignKey, Date, DateTime, func, create_engine
-from sqlalchemy.orm import relationship
-# from app import db
-
+from sqlalchemy.orm import relationship, declarative_base
 
 db = SQLAlchemy()
+# db = declarative_base()
 DB_NAME = 'database.db'
 engine = create_engine(f'sqlite:///{DB_NAME}', echo=True, future=True)
 session = Session(engine)
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -36,6 +36,10 @@ class Activity(db.Model):
     time_create = Column(DateTime(timezone=True), server_default=func.now())
     time_update = Column(DateTime(timezone=True), onupdate=func.now())
 
-def create_db():
-    if not path.exist(f'/{DB_NAME}'):
+
+def create_db(app):
+    # db.init_app(app)
+    if not path.exists(f'/{DB_NAME}'):
         db.metadata.create_all(engine)
+        print('DB created.')
+        # db.metadata.create_all(app=app)
