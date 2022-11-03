@@ -1,28 +1,34 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_login import login_user, login_required, logout_user, current_user, LoginManager
 
 # from app import db, session
-from models import db, session
-from models import User
+from models import session
+from models import User, Activity
 
 auth = Blueprint('auth', __name__)
+login_manager = LoginManager()
+
+
+def initiate_login_manager(app):
+    login_manager.init_app(app)
+
+
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return session.query(User).filter_by(id=user_id).first()
 
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    t = session.query(User).filter_by(id=10)
-    if t:
-        print('hi', type(t))
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         user = session.query(User).filter_by(email=email).first()
-        # user = User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
                 flash(f'Logged, welcome {user.first_name}!', category='success')
-                login_user(user, remember=True)
+                # login_user(user, remember=True)
                 return redirect(url_for('views.home'))
             else:
                 flash('Incorrect password, try again.', category='error')
@@ -40,13 +46,7 @@ def sign_up():
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
 
-        # user = user_table.query.filter_by(email=email).first()
         user = session.query(User).filter_by(email=email).first()
-        if user:
-            pass
-        else:
-            print('\t======\tuser table not exist.')
-
         if user:
             flash('User already exist.', category='error')
         elif len(email) < 4:
@@ -62,18 +62,20 @@ def sign_up():
         else:
             # new_user = user_table(email=email, first_name=first_name, last_name=last_name,
             #                       password=generate_password_hash(password1, method='sha256'))
-            new_user = session.query(User).join(email=email, first_name=first_name, last_name=last_name,
-                                                      password=generate_password_hash(password1, method='sha256'))
-            db.session.add(new_user)
-            db.session.commit()
-            login_user(new_user, remember=True)
+            new_user = User(email=email, first_name=first_name, last_name=last_name,
+                            password=generate_password_hash(password1, method='sha256'))
+            session.add(new_user)
+            session.commit()
+            # login_user(new_user, remember=True)
             flash('Account created.', category='success')
             return redirect(url_for('views.home'))
 
     return render_template('sign_up.html')
 
 
+
 @auth.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))

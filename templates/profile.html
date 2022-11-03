@@ -1,7 +1,31 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile{% endblock %}
+{% block title %}Profile {{ user.first_name }} {{ user.last_name }}{% endblock %}
 
 {% block content %}
-<h1>Profile</h1>
+<h2 class="m-3">Profile {{ user.first_name }} {{ user.last_name }}</h2>
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <tr>
+            <th>User ID</th>
+            <td>{{user.id}}</td>
+        </tr>
+        <tr>
+            <th>User email</th>
+            <td>{{user.email}}</td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+        </tr>
+        <tr>
+            <th>Role</th>
+            <td>{{ user.role }}</td>
+        </tr>
+        <tr>
+            <th>Created at</th>
+            <td>{{ user.time_create }}</td>
+        </tr>
+    </table>
+</div>
 {% endblock %}

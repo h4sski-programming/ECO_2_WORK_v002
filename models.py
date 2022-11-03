@@ -2,10 +2,9 @@ from os import path
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy.session import Session
 from sqlalchemy import Column, Integer, String, \
     ForeignKey, Date, DateTime, func, create_engine
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship, declarative_base, Session
 
 db = SQLAlchemy()
 # db = declarative_base()
@@ -16,30 +15,27 @@ session = Session(engine)
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
-    id = Column(Integer(), primary_key=True)
-    email = Column(String(200), unique=True)
-    password = Column(String(100))
-    first_name = Column(String(100))
-    last_name = Column(String(100))
-    role = Column(String(50), default='member')
-    time_create = Column(DateTime(timezone=True), server_default=func.now())
+    id = db.Column(db.Integer(), primary_key=True)
+    email = db.Column(db.String(200), unique=True)
+    password = db.Column(db.String(100))
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
+    role = db.Column(db.String(50), default='member')
+    time_create = db.Column(db.DateTime(timezone=True), server_default=func.now())
     activity = relationship('Activity')
 
 
 class Activity(db.Model):
     __tablename__ = 'activity'
-    id = Column(Integer(), primary_key=True)
-    user_id = Column(Integer(), ForeignKey('user.id'))
-    date = Column(Date(), unique=True)
-    distance = Column(Integer())
-    type = Column(Integer())
-    time_create = Column(DateTime(timezone=True), server_default=func.now())
-    time_update = Column(DateTime(timezone=True), onupdate=func.now())
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), ForeignKey('user.id'))
+    date = db.Column(db.Date(), unique=True)
+    distance = db.Column(db.Integer())
+    type = db.Column(db.Integer())
+    time_create = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    time_update = db.Column(db.DateTime(timezone=True), onupdate=func.now())
 
 
 def create_db(app):
-    # db.init_app(app)
     if not path.exists(f'/{DB_NAME}'):
         db.metadata.create_all(engine)
-        print('DB created.')
-        # db.metadata.create_all(app=app)
