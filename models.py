@@ -2,14 +2,12 @@ from os import path
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, \
-    ForeignKey, Date, DateTime, func, create_engine
+from sqlalchemy import ForeignKey, func, create_engine
 from sqlalchemy.orm import relationship, declarative_base, Session
 
 db = SQLAlchemy()
-# db = declarative_base()
 DB_NAME = 'database.db'
-engine = create_engine(f'sqlite:///{DB_NAME}', echo=True, future=True)
+engine = create_engine(f'sqlite:///{DB_NAME}', echo=True, future=True, connect_args={'check_same_thread': False})
 session = Session(engine)
 
 

@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_login import LoginManager
 
 from models import create_db
 from models import DB_NAME
@@ -11,6 +12,10 @@ app = Flask(__name__)
 def initiate_app():
     app.config['SECRET_KEY'] = 'h4sski'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
 
 
 def main():
